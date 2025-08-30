@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClauseWise: AI-Powered Legal Document Analyzer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+            /* --- New CSS for Modal/Sign-in Box --- */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1001; /* Sit on top of everything */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px var(--shadow-light);
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.close-button {
+    color: var(--text-dark);
+    font-size: 2.5em;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-button:hover {
+    color: var(--primary-blue);
+}
+
+.modal-content h2 {
+    color: var(--primary-blue);
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Reusing existing form-group and button styles */
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+
+}
+        :root {
+            --primary-blue: #007bff; /* A vibrant blue */
+            --light-blue: #e0f2ff; /* Very light blue for backgrounds */
+            --dark-blue: #0056b3; /* Darker blue for hover states */
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --border-color: #cccccc;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-blue);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header/Navigation */
+        header {
+            background-color: var(--white);
+            padding: 15px 0;
+            box-shadow: 0 2px 4px var(--shadow-light);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-blue);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .auth-buttons .btn {
+            padding: 8px 18px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .auth-buttons .btn-signin {
+            background-color: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .auth-buttons .btn-signin:hover {
+            background-color: var(--light-blue);
+        }
+
+        .auth-buttons .btn-getstarted {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .auth-buttons .btn-getstarted:hover {
+            background-color: var(--dark-blue);
+            border-color: var(--dark-blue);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background-color: var(--white);
+            padding: 80px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+        }
+
+        .hero-text {
+            flex: 1;
+            max-width: 55%;
+        }
+
+        .hero-text h1 {
+            font-size: 3.2em;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            line-height: 1.1;
+        }
+
+        .hero-text p {
+            font-size: 1.2em;
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .hero-buttons .btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .hero-buttons .btn-primary {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .hero-buttons .btn-primary:hover {
+            background-color: var(--dark-blue);
+            border-color: var(--dark-blue);
+        }
+
+        .hero-buttons .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .hero-buttons .btn-secondary:hover {
+            background-color: var(--light-blue);
+        }
+
+        .hero-image {
+            flex: 1;
+            max-width: 45%;
+            position: relative;
+            background-color: #f0f8ff; /* A slightly different light blue for the image background */
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+        }
+
+        .hero-image img {
+            width: 100%;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .ai-processing-tag {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background-color: #28a745; /* Green for "AI Processing" */
+            color: var(--white);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ai-processing-tag::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: var(--white);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .accuracy-rate {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: var(--white);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        .hero-footer-badges {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+
+        .hero-footer-badges span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-footer-badges span svg {
+            color: var(--primary-blue);
+            font-size: 1.2em;
+        }
+        .file-upload-section {
+            padding: 60px 0;
+            background-color: var(--white);
+            text-align: center;
+        }
+
+        .file-upload-section h2 {
+            font-size: 2.5em;
+            color: var(--primary-blue);
+            margin-bottom: 30px;
+        }
+
+        #uploadForm {
+            max-width: 600px;
+            margin: 0 auto;
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            background-color: var(--light-blue);
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-box {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+        }
+
+        #uploadForm:hover {
+            background-color: #f0f8ff;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.2em;
+        }
+
+        .loading-message {
+            margin-top: 20px;
+            color: var(--primary-blue);
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border-left-color: var(--primary-blue);
+            animation: spin 1s ease infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            margin-top: 40px;
+            text-align: left;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .results-container pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            color: #495057;
+        }
+
+        .error-message {
+            margin-top: 20px;
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 60px 0;
+            background-color: var(--light-blue);
+            text-align: center;
+        }
+
+        .features-section h2 {
+            font-size: 2.5em;
+            color: var(--primary-blue);
+            margin-bottom: 50px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-card h3 {
+            color: var(--primary-blue);
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-card h3 svg {
+            font-size: 1.5em;
+            color: var(--primary-blue);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+        }
+
+        /* New Sections */
+        .why-choose-us {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .why-choose-us {
+            background-color: var(--white);
+        }
+
+        .section-heading {
+            font-size: 2.5em;
+            color: var(--primary-blue);
+            margin-bottom: 50px;
+        }
+
+        .advantage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .advantage-card {
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-left: 5px solid var(--primary-blue);
+            border-radius: 8px;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+        
+        .advantage-card:hover {
+            background-color: #f0f8ff;
+        }
+
+        .advantage-card h3 {
+            font-size: 1.3em;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .advantage-card h3 svg {
+            font-size: 1.5em;
+            color: var(--primary-blue);
+        }
+
+        .testimonial-card {
+            background-color: var(--white);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            position: relative;
+            text-align: left;
+        }
+
+        .testimonial-card blockquote {
+            font-style: italic;
+            font-size: 1.1em;
+            color: var(--text-light);
+            margin: 0 0 20px 0;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .contact-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #f0f8ff, #e0f2ff);
+            text-align: center;
+        }
+
+        .contact-section .contact-form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: var(--white);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px var(--shadow-light);
+        }
+
+        .contact-section .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .contact-section label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .contact-section input, .contact-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        
+        .contact-section .submit-btn {
+            width: auto;
+            padding: 12px 30px;
+        }
+        
+        .contact-details {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .contact-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.1em;
+            color: var(--text-light);
+        }
+
+        .contact-detail-item svg {
+            color: var(--primary-blue);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-blue);
+            color: var(--white);
+            padding: 40px 0;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        footer .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-blue);
+        }
+
+        .social-media {
+            margin-top: 15px;
+        }
+
+        .social-media a {
+            color: var(--white);
+            font-size: 1.5em;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .social-media a:hover {
+            color: var(--primary-blue);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .hero-text, .hero-image {
+                max-width: 100%;
+            }
+            .hero-text h1 {
+                font-size: 2.5em;
+            }
+            .hero-text p {
+                font-size: 1em;
+            }
+            .hero-buttons {
+                justify-content: center;
+            }
+            .nav-links {
+                display: none; /* Hide navigation links on smaller screens */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .auth-buttons {
+                margin-top: 15px;
+            }
+            .hero-text h1 {
+                font-size: 2em;
+            }
+            .hero-text p {
+                font-size: 1em;
+            }
+            .hero-image {
+                padding: 15px;
+            }
+            .ai-processing-tag, .accuracy-rate {
+                font-size: 0.8em;
+                padding: 4px 10px;
+            }
+            .ai-processing-tag { top: 20px; right: 20px; }
+            .accuracy-rate { bottom: 20px; left: 20px; }
+            .feature-grid, .advantage-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+             <a href="#" class="logo">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrkMugTc_o-bi1QNYc4TQj73Yoxll2Qv1TrswH6KNBaPNrDecQ" alt="ClauseWise Logo"> ClauseWise
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <a href="#" class="btn btn-signin">Sign In</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div id="signInModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Sign In</h2>
+        <form id="signInForm">
+            <div class="form-group">
+                <label for="modal-email">Email</label>
+                <input type="email" id="modal-email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="modal-password">Password</label>
+                <input type="password" id="modal-password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Log In</button>
+        </form>
+    </div>
+</div>
+
+    <main>
+        <section class="hero-section">
+            <div class="container hero-content">
+                <div class="hero-text">
+                    <span style="display: block; font-size: 0.9em; color: var(--primary-blue); margin-bottom: 10px; font-weight: 600;">AI-Powered Legal Analysis</span>
+                    <h1>ClauseWise<br>Legal Document Analyzer</h1>
+                    <p>Simplify, decode, and classify complex legal documents with IBM Watson & Granite AI. Transform hours of manual review into minutes of intelligent analysis.</p>
+                    <div class="hero-buttons">
+                        <a href="#file-upload-section" class="btn btn-primary"> Get Started <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="hero-footer-badges">
+                        <span><i class="fas fa-lock"></i> Enterprise Security</span>
+                        <span><i class="fas fa-check-circle"></i> 99.9% Accuracy</span>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://www.aiwhylive.com/wp-content/uploads/2025/08/ai_critical_thinking.jpeg" alt="AI Robot Analyzing Documents">
+                    <div class="ai-processing-tag">AI Processing</div>
+                    <div class="accuracy-rate">98%<br><span style="font-size: 0.6em; font-weight: 400;">Accuracy Rate</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="file-upload-section" class="file-upload-section">
+            <div class="container">
+                <h2>Analyze Your Document</h2>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="upload-box">
+                        <i class="fas fa-file-upload upload-icon"></i>
+                        <p>Drag and drop your file here, or click to select.</p>
+                        <input type="file" id="fileInput" name="document" hidden accept=".pdf,.docx,.txt">
+                        <label for="fileInput" class="btn btn-primary">Choose File</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary submit-btn">Analyze Document</button>
+                </form>
+                <div id="loadingMessage" class="loading-message" style="display:none;">
+                    <div class="spinner"></div>
+                    Analyzing document...
+                </div>
+                <div id="results" class="results-container" style="display:none;">
+                    <h3>Analysis Results</h3>
+                    <pre id="resultsPre"></pre>
+                </div>
+                <div id="errorMessage" class="error-message" style="display:none;"></div>
+            </div>
+        </section>
+
+        <section id="features" class="features-section">
+            <div class="container">
+                <h2>Key Features & Solutions</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3><i class="fas fa-gavel"></i> Clause Simplification</h3>
+                        <p>Automatically rewrites complex legal clauses into simplified, layman-friendly language for better comprehension.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i class="fas fa-user-tag"></i> Named Entity Recognition (NER)</h3>
+                        <p>Identifies and extracts key legal entities such as parties, dates, obligations, monetary values, and legal terms.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i class="fas fa-cut"></i> Clause Extraction and Breakdown</h3>
+                        <p>Detects and segments individual clauses from lengthy legal documents for focused analysis.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i class="fas fa-file-alt"></i> Document Type Classification</h3>
+                        <p>Accurately classifies uploaded legal documents into categories like NDA, lease, employment contract, or service agreement.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i class="fas fa-file-pdf"></i> Multi-Format Document Support</h3>
+                        <p>Enables users to upload and process legal documents in PDF, DOCX, or TXT formats seamlessly.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i class="fas fa-user-friends"></i> User-Friendly Interface</h3>
+                        <p>Provides an interactive frontend for users, built with Streamlit/Gradio (conceptual, for a full web app, typical web frameworks would be used).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="about" class="about-session">
+        <div class="why-choose-us">
+            <div class="container">
+                <h2 class="section-heading">Why Choose ClauseWise?</h2>
+                <div class="advantage-grid">
+                    <div class="advantage-card">
+                        <h3><i class="fas fa-rocket"></i> Speed & Efficiency</h3>
+                        <p>Reduce document review time from hours to minutes. Our AI processes your legal documents instantly, so you can focus on strategy, not scanning.</p>
+                    </div>
+                    <div class="advantage-card">
+                        <h3><i class="fas fa-shield-alt"></i> Enhanced Accuracy</h3>
+                        <p>Minimize the risk of human error. Our 99.9% accuracy rate ensures no critical details are missed, providing reliable insights every time.</p>
+                    </div>
+                    <div class="advantage-card">
+                        <h3><i class="fas fa-dollar-sign"></i> Cost-Effective Solution</h3>
+                        <p>Lower your operational costs by automating a labor-intensive process. ClauseWise offers a high return on investment for legal teams and businesses.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <h2 class="section-heading">Get in Touch</h2>
+                <div class="contact-form-container">
+                    <form action="#" method="POST">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary submit-btn">Send Message</button>
+                    </form>
+                </div>
+                <div class="contact-details">
+                    <div class="contact-detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>123 Legal Lane, Suite 400<br>Tech City, TX 78701</span>
+                    </div>
+                    <div class="contact-detail-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:info@clausewise.com">info@clausewise.com</a>
+                    </div>
+                    <div class="contact-detail-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <a href="tel:+15551234567">+1 (555) 123-4567</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 ClauseWise. All rights reserved.</p>
+            <ul class="footer-links">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Support</a></li>
+                <li><a href="#">Careers</a></li>
+            </ul>
+            <div class="social-media">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </footer>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const resultsContainer = document.getElementById('results');
+        const resultsPre = document.getElementById('resultsPre');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // IMPORTANT: Use the correct local URL for the backend
+        const backendURL = 'http://localhost:5001/analyze-document'; // Or http://127.0.0.1:5001/analyze-document
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Show loading state and hide previous results/errors
+            loadingMessage.style.display = 'flex';
+            resultsContainer.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            const formData = new FormData();
+            const file = fileInput.files[0];
+
+            if (!file) {
+                loadingMessage.style.display = 'none';
+                errorMessage.textContent = 'Please select a file to upload.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            formData.append('document', file);
+
+            try {
+                const response = await fetch(backendURL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Server responded with an error');
+                }
+
+                const data = await response.json();
+                
+                // Hide loading, show results
+                loadingMessage.style.display = 'none';
+                resultsPre.textContent = JSON.stringify(data.analysis, null, 2);
+                resultsContainer.style.display = 'block';
+
+            } catch (error) {
+                // Hide loading, show error
+                loadingMessage.style.display = 'none';
+                errorMessage.textContent = `Error: ${error.message}`;
+                errorMessage.style.display = 'block';
+                console.error('Fetch error:', error);
+            }
+        });
+    });
+    const signInLink = document.querySelector('.btn-signin');
+    const signInModal = document.getElementById('signInModal');
+    const closeButton = document.querySelector('.close-button');
+
+    // Function to show the modal
+    function openModal() {
+        signInModal.style.display = 'flex';
+    }
+
+    // Function to hide the modal
+    function closeModal() {
+        signInModal.style.display = 'none';
+    }
+
+    // When the user clicks the "Sign In" link, open the modal
+    signInLink.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent the default link behavior
+        openModal();
+    });
+
+    // When the user clicks on <span> (x), close the modal
+    closeButton.addEventListener('click', closeModal);
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.addEventListener('click', (e) => {
+        if (e.target == signInModal) {
+            closeModal();
+        }
+    });
+</script>
+</body>
+</html>
